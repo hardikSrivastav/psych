@@ -1,0 +1,3 @@
+[2025-08-20 19:52:46] [ERROR] [app.services.qdrant] Failed to perform similarity search: Unexpected Response: 404 (Not Found)
+Raw response content:
+b'{"status":{"error":"Not found: Collection `psychology_papers` doesn\'t exist!"},"time":0.000019458}'

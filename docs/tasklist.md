@@ -120,11 +120,11 @@
   - [x] Environment configuration for API endpoints
 
 ### End-to-End Integration & Testing
-- [ ] Full stack integration:
-  - [ ] Frontend ↔ Backend API communication
-  - [ ] Session flow testing (creation, continuation, expiration)
-  - [ ] Conversation history functionality
-  - [ ] Error handling across the stack
+- [x] Full stack integration:
+  - [x] Frontend ↔ Backend API communication
+  - [x] Session flow testing (creation, continuation, expiration)
+  - [x] Conversation history functionality
+  - [x] Error handling across the stack
 - [ ] Performance testing:
   - [ ] Response time measurements (target < 2 seconds)
   - [ ] Concurrent session handling
@@ -200,11 +200,11 @@
 - [ ] Therapeutic value demonstrated through sample interactions
 
 ### Integration & Deployment
-- [ ] Complete Docker-based deployment working end-to-end
-- [ ] Frontend successfully communicates with backend APIs
-- [ ] Session management working correctly with Redis TTL
-- [ ] All services properly logged and monitored
-- [ ] Clean shutdown and restart capabilities verified
+- [x] Complete Docker-based deployment working end-to-end
+- [x] Frontend successfully communicates with backend APIs
+- [x] Session management working correctly with Redis TTL
+- [x] All services properly logged and monitored
+- [x] Clean shutdown and restart capabilities verified
 
 ## Critical Dependencies & Blockers
 
