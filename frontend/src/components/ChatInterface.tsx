@@ -49,7 +49,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, setSessionId }
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:8000/chat/', {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/chat/`, {
         message: content.trim(),
         session_id: sessionId
       }, {
