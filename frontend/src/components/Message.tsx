@@ -3,57 +3,100 @@
 import React from 'react';
 
 interface MessageProps {
-  message: {
-    id: string;
-    role: 'user' | 'assistant';
-    content: string;
-    timestamp: Date;
-    metadata?: any;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+  metadata?: {
+    chunks_retrieved?: number;
+    response_time_ms?: number;
+    tokens_used?: number;
   };
 }
 
-const Message: React.FC<MessageProps> = ({ message }) => {
-  const isUser = message.role === 'user';
+const Message: React.FC<MessageProps> = ({ role, content, timestamp, metadata }) => {
+  const isUser = role === 'user';
   
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} fade-in`}>
-      <div className={`max-w-[80%] ${isUser ? 'order-2' : 'order-1'}`}>
-        <div
-          className={`px-4 py-3 rounded-lg ${
-            isUser
-              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-              : 'bg-white/20 backdrop-blur-md text-white border border-white/20'
-          }`}
-        >
-          <div className="text-sm leading-relaxed whitespace-pre-wrap">
-            {message.content}
-          </div>
-          
-          {message.metadata && !isUser && (
-            <div className="mt-2 pt-2 border-t border-white/20 text-xs text-white/60">
-              <div className="flex items-center space-x-4">
-                <span>⏱️ {message.metadata.response_time_ms}ms</span>
-                <span>📊 {message.metadata.chunks_retrieved} sources</span>
-                <span>💬 {message.metadata.tokens_used} tokens</span>
-              </div>
-            </div>
-          )}
+    <div style={{
+      display: 'flex',
+      justifyContent: isUser ? 'flex-end' : 'flex-start',
+      marginBottom: '20px',
+      padding: '0 20px'
+    }}>
+      <div style={{
+        maxWidth: '70%',
+        background: isUser ? '#22c55e' : '#111111',
+        border: isUser ? 'none' : '1px solid #22c55e',
+        borderRadius: '8px',
+        padding: '16px',
+        position: 'relative'
+      }}>
+        {/* Role indicator */}
+        <div style={{
+          position: 'absolute',
+          top: '-8px',
+          left: isUser ? 'auto' : '16px',
+          right: isUser ? '16px' : 'auto',
+          background: '#000000',
+          padding: '2px 8px',
+          borderRadius: '4px',
+          fontSize: '10px',
+          color: '#22c55e',
+          fontFamily: 'monospace',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>
+          {isUser ? 'YOU' : 'AI'}
         </div>
         
-        <div className={`text-xs text-white/50 mt-1 ${isUser ? 'text-right' : 'text-left'}`}>
-          {message.timestamp.toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit' 
-          })}
+        {/* Message content */}
+        <div style={{
+          color: isUser ? '#000000' : '#ffffff',
+          fontFamily: 'monospace',
+          fontSize: '14px',
+          lineHeight: '1.5',
+          marginTop: '8px'
+        }}>
+          {content}
         </div>
-      </div>
-      
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center mx-2 ${
-        isUser ? 'order-1 bg-gradient-to-br from-blue-400 to-purple-500' : 'order-2 bg-gradient-to-br from-green-400 to-blue-500'
-      }`}>
-        <span className="text-white text-sm font-bold">
-          {isUser ? '👤' : '🧠'}
-        </span>
+        
+        {/* Metadata */}
+        {metadata && !isUser && (
+          <div style={{
+            marginTop: '12px',
+            paddingTop: '12px',
+            borderTop: '1px solid #333333',
+            fontSize: '10px',
+            color: '#666666',
+            fontFamily: 'monospace',
+            display: 'flex',
+            gap: '12px',
+            flexWrap: 'wrap'
+          }}>
+            {metadata.chunks_retrieved !== undefined && (
+              <span>CHUNKS: {metadata.chunks_retrieved}</span>
+            )}
+            {metadata.response_time_ms !== undefined && (
+              <span>TIME: {metadata.response_time_ms.toFixed(0)}MS</span>
+            )}
+            {metadata.tokens_used !== undefined && (
+              <span>TOKENS: {metadata.tokens_used}</span>
+            )}
+          </div>
+        )}
+        
+        {/* Timestamp */}
+        {timestamp && (
+          <div style={{
+            marginTop: '8px',
+            fontSize: '10px',
+            color: '#666666',
+            fontFamily: 'monospace',
+            textAlign: isUser ? 'right' : 'left'
+          }}>
+            {timestamp}
+          </div>
+        )}
       </div>
     </div>
   );

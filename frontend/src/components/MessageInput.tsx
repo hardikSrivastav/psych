@@ -4,15 +4,15 @@ import React, { useState, KeyboardEvent } from 'react';
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
-  isLoading: boolean;
+  isLoading?: boolean;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading }) => {
+const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading = false }) => {
   const [message, setMessage] = useState('');
 
-  const handleSubmit = () => {
+  const handleSend = () => {
     if (message.trim() && !isLoading) {
-      onSendMessage(message);
+      onSendMessage(message.trim());
       setMessage('');
     }
   };
@@ -20,42 +20,71 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, isLoading })
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      handleSend();
     }
   };
 
   return (
-    <div className="flex items-end space-x-3">
-      <div className="flex-1 relative">
-        <textarea
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Share what's on your mind..."
-          disabled={isLoading}
-          className="w-full px-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg text-white placeholder-white/50 resize-none focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent disabled:opacity-50"
-          rows={1}
-          style={{ minHeight: '48px', maxHeight: '120px' }}
-        />
+    <div style={{
+      borderTop: '1px solid #22c55e',
+      padding: '20px',
+      background: '#000000'
+    }}>
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        alignItems: 'flex-end',
+        maxWidth: '800px',
+        margin: '0 auto'
+      }}>
+        <div style={{
+          flex: 1,
+          position: 'relative'
+        }}>
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Type your message..."
+            disabled={isLoading}
+            style={{
+              width: '100%',
+              minHeight: '44px',
+              maxHeight: '120px',
+              padding: '12px 16px',
+              background: '#111111',
+              border: '1px solid #22c55e',
+              borderRadius: '4px',
+              color: '#ffffff',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              resize: 'none',
+              outline: 'none',
+              lineHeight: '1.4'
+            }}
+          />
+        </div>
+        <button
+          onClick={handleSend}
+          disabled={!message.trim() || isLoading}
+          style={{
+            padding: '12px 20px',
+            background: message.trim() && !isLoading ? '#22c55e' : '#333333',
+            border: '1px solid #22c55e',
+            borderRadius: '4px',
+            color: message.trim() && !isLoading ? '#000000' : '#666666',
+            fontFamily: 'monospace',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: message.trim() && !isLoading ? 'pointer' : 'not-allowed',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          {isLoading ? 'SENDING...' : 'SEND'}
+        </button>
       </div>
-      
-      <button
-        onClick={handleSubmit}
-        disabled={!message.trim() || isLoading}
-        className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-      >
-        {isLoading ? (
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            <span>Sending...</span>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2">
-            <span>Send</span>
-            <span>→</span>
-          </div>
-        )}
-      </button>
     </div>
   );
 };

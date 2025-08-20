@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
+import ChatInterface from '../components/ChatInterface';
 
 export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -32,66 +33,9 @@ export default function Home() {
           </div>
         </header>
         
-        {/* Main Content */}
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          padding: '40px 20px',
-          textAlign: 'center'
-        }}>
-          <h1 style={{ 
-            fontSize: '32px', 
-            fontWeight: 'normal', 
-            color: '#ffffff', 
-            marginBottom: '20px',
-            fontFamily: 'monospace'
-          }}>
-            AI PSYCHOLOGIST
-          </h1>
-          <p style={{ 
-            color: '#22c55e', 
-            fontSize: '14px', 
-            marginBottom: '40px',
-            fontFamily: 'monospace'
-          }}>
-            SCIENTIFICALLY-GROUNDED THERAPEUTIC SUPPORT
-          </p>
-          
-          {/* Status Card */}
-          <div style={{ 
-            background: '#111111', 
-            border: '1px solid #22c55e', 
-            borderRadius: '8px',
-            padding: '30px',
-            maxWidth: '400px',
-            width: '100%'
-          }}>
-            <p style={{ 
-              color: '#ffffff', 
-              fontSize: '14px', 
-              marginBottom: '10px',
-              fontFamily: 'monospace'
-            }}>
-              STATUS: OPERATIONAL
-            </p>
-            <p style={{ 
-              color: '#22c55e', 
-              fontSize: '12px', 
-              marginBottom: '20px',
-              fontFamily: 'monospace'
-            }}>
-              SESSION ID: {sessionId || 'NONE'}
-            </p>
-            <div style={{ 
-              width: '100%', 
-              height: '2px', 
-              background: '#22c55e',
-              marginTop: '20px'
-            }}></div>
-          </div>
+        {/* Chat Interface */}
+        <div style={{ flex: 1 }}>
+          <ChatInterface sessionId={sessionId} setSessionId={setSessionId} />
         </div>
       </main>
     </>

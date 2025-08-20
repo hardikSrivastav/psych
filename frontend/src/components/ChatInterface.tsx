@@ -5,21 +5,25 @@ import axios from 'axios';
 import Message from './Message';
 import MessageInput from './MessageInput';
 
-interface Message {
+interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  timestamp: Date;
-  metadata?: any;
+  timestamp: string;
+  metadata?: {
+    chunks_retrieved?: number;
+    response_time_ms?: number;
+    tokens_used?: number;
+  };
 }
 
 interface ChatInterfaceProps {
-  sessionId: string | null;
-  setSessionId: (sessionId: string | null) => void;
+  sessionId?: string | null;
+  setSessionId?: (sessionId: string) => void;
 }
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, setSessionId }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -34,11 +38,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, setSessionId }
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
 
-    const userMessage: Message = {
+    const userMessage: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
       content: content.trim(),
-      timestamp: new Date(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -47,27 +51,36 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, setSessionId }
     try {
       const response = await axios.post('/api/chat', {
         message: content.trim(),
-        session_id: sessionId,
+        session_id: sessionId
+      }, {
+        timeout: 30000
       });
 
-      const assistantMessage: Message = {
+      const { response: assistantResponse, session_id, metadata } = response.data;
+
+      const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data.response,
-        timestamp: new Date(),
-        metadata: response.data.metadata,
+        content: assistantResponse,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        metadata
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      setSessionId(response.data.session_id);
+      
+      if (setSessionId && session_id) {
+        setSessionId(session_id);
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      const errorMessage: Message = {
+      
+      const errorMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I apologize, but I\'m experiencing technical difficulties. Please try again.',
-        timestamp: new Date(),
+        content: 'Sorry, I encountered an error. Please try again.',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
+
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -75,42 +88,97 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ sessionId, setSessionId }
   };
 
   return (
-    <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4 py-6">
-      <div className="flex-1 bg-white/10 backdrop-blur-md rounded-lg border border-white/20 flex flex-col">
-        {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center text-white/70 py-8">
-              <div className="text-4xl mb-4">🧠</div>
-              <h2 className="text-xl font-semibold mb-2">Welcome to AI Psychologist</h2>
-              <p className="text-sm">
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      height: '100%',
+      background: '#000000'
+    }}>
+      {/* Messages Container */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '20px 0',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {messages.length === 0 ? (
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
+            color: '#666666',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            textAlign: 'center',
+            padding: '40px 20px'
+          }}>
+            <div style={{
+              background: '#111111',
+              border: '1px solid #22c55e',
+              borderRadius: '8px',
+              padding: '40px',
+              maxWidth: '500px'
+            }}>
+              <h3 style={{
+                color: '#22c55e',
+                fontSize: '16px',
+                marginBottom: '16px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                WELCOME TO AI PSYCHOLOGIST
+              </h3>
+              <p style={{
+                color: '#ffffff',
+                fontSize: '14px',
+                lineHeight: '1.6',
+                marginBottom: '20px'
+              }}>
                 I'm here to provide scientifically-grounded therapeutic support. 
-                How are you feeling today?
+                Share what's on your mind, and I'll respond with evidence-based guidance.
               </p>
+              <div style={{
+                width: '100%',
+                height: '2px',
+                background: '#22c55e',
+                marginTop: '20px'
+              }}></div>
             </div>
-          )}
-          
-          {messages.map((message) => (
-            <Message key={message.id} message={message} />
-          ))}
-          
-          {isLoading && (
-            <div className="flex items-center space-x-2 text-white/70">
-              <div className="w-2 h-2 bg-white/70 rounded-full pulse"></div>
-              <div className="w-2 h-2 bg-white/70 rounded-full pulse" style={{ animationDelay: '0.2s' }}></div>
-              <div className="w-2 h-2 bg-white/70 rounded-full pulse" style={{ animationDelay: '0.4s' }}></div>
-              <span className="text-sm">AI is thinking...</span>
-            </div>
-          )}
-          
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="p-4 border-t border-white/20">
-          <MessageInput onSendMessage={sendMessage} isLoading={isLoading} />
-        </div>
+          </div>
+        ) : (
+          messages.map((message) => (
+            <Message
+              key={message.id}
+              role={message.role}
+              content={message.content}
+              timestamp={message.timestamp}
+              metadata={message.metadata}
+            />
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <div style={{
+          padding: '20px',
+          textAlign: 'center',
+          color: '#22c55e',
+          fontFamily: 'monospace',
+          fontSize: '12px',
+          textTransform: 'uppercase',
+          letterSpacing: '0.5px'
+        }}>
+          AI IS THINKING...
+        </div>
+      )}
+
+      {/* Message Input */}
+      <MessageInput onSendMessage={sendMessage} isLoading={isLoading} />
     </div>
   );
 };
